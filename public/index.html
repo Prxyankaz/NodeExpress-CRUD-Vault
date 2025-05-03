@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Item Manager</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f8;
+      color: #333;
+      padding: 40px;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    h1, h2 {
+      color: #2c3e50;
+    }
+
+    input {
+      padding: 10px;
+      margin: 5px 10px 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 200px;
+    }
+
+    button {
+      padding: 10px 15px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px 5px 5px 0;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .item-block {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .item-block span {
+      flex-grow: 1;
+    }
+
+    #itemList {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    #itemList button {
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Item Manager</h1>
+
+  <h2>Create Item</h2>
+  <input id="name" placeholder="Name">
+  <input id="desc" placeholder="Description">
+  <button onclick="createItem()">Add</button>
+
+  <h2>Items</h2>
+  <button onclick="getItems()">Refresh List</button>
+  <ul id="itemList"></ul>
+
+  <script>
+    const api = 'http://localhost:3000/items';
+
+    function getItems() {
+      fetch(api)
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('itemList');
+          list.innerHTML = '';
+          data.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'item-block';
+            const text = document.createElement('span');
+            text.textContent = `${item.Name} - ${item.Description}`;
+
+            const editBtn = document.createElement('button');
+            editBtn.textContent = 'Edit';
+            editBtn.onclick = () => showEditForm(item);
+
+            const delBtn = document.createElement('button');
+            delBtn.textContent = 'Delete';
+            delBtn.onclick = () => deleteItem(item.ID);
+
+            li.appendChild(text);
+            li.appendChild(editBtn);
+            li.appendChild(delBtn);
+            list.appendChild(li);
+          });
+        });
+    }
+
+    function createItem() {
+      const name = document.getElementById('name').value;
+      const desc = document.getElementById('desc').value;
+
+      fetch(api, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description: desc })
+      }).then(() => {
+        getItems();
+        document.getElementById('name').value = '';
+        document.getElementById('desc').value = '';
+      });
+    }
+
+    function deleteItem(id) {
+      fetch(`${api}/${id}`, { method: 'DELETE' })
+        .then(() => getItems());
+    }
+
+    function showEditForm(item) {
+      const newName = prompt("Enter new name:", item.Name);
+      const newDesc = prompt("Enter new description:", item.Description);
+      if (newName !== null && newDesc !== null) {
+        updateItem(item.ID, newName, newDesc);
+      }
+    }
+
+    function updateItem(id, name, description) {
+      fetch(`${api}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description })
+      }).then(() => getItems());
+    }
+
+    getItems();
+  </script>
+</body>
+</html>
