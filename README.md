@@ -1,6 +1,6 @@
 # NodeExpress-CRUD-Vault
 
-A simple and modular CRUD application built with Node.js and Express.js, demonstrating a clean MVC architecture. The app allows users to create, read, update, and delete items, with a minimal frontend served via static HTML.
+A simple and modular CRUD application built with Node.js and Express.js, demonstrating a clean MVVM architecture. The app allows users to create, read, update, and delete items, with a minimal frontend served via static HTML.
 
 ## 🚀 Features
 
